@@ -25,16 +25,12 @@ class RekomRequestsForm
                 TextInput::make('jenis_usaha'),
                 TextInput::make('nama_kapal'),
                 TextInput::make('jenis_alat_mesin'),
-                TextInput::make('jumlah_alat_mesin')
-                    ->numeric(),
+                TextInput::make('jumlah_alat_mesin'),
                 TextInput::make('daya_alat_mesin'),
-                TextInput::make('lama_penggunaan_jam_per_hari')
-                    ->numeric(),
+                TextInput::make('lama_penggunaan_jam_per_hari'),
                 TextInput::make('lama_operasi'),
-                TextInput::make('usulan_volume_konsumsi')
-                    ->numeric(),
-                TextInput::make('estimasi_sisa_jbkp')
-                    ->numeric(),
+                TextInput::make('usulan_volume_konsumsi'),
+                TextInput::make('estimasi_sisa_jbkp'),
                 FileUpload::make('sertifikat_mesin_path')
                     ->label('Sertifikat Mesin')
                     ->directory('sertifikat-mesin') // folder penyimpanan di storage/app/public/sertifikat-mesin
