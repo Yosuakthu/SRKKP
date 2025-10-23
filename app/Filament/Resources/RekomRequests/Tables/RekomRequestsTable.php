@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use App\Models\SuratRekomendasi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\TextInput;
+
 
 class RekomRequestsTable
 {
@@ -35,7 +37,7 @@ class RekomRequestsTable
                     ->label('Sertifikat Mesin')
                     ->url(fn ($record) => asset('storage/' . $record->sertifikat_mesin_path))
                     ->openUrlInNewTab()
-                    ->formatStateUsing(fn ($state) => 'Sertifikat Mesin'),
+                    ->formatStateUsing(fn ($state) => 'Lihat Sertifikat'),
                 TextColumn::make('status')->badge(),
                 TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -44,7 +46,7 @@ class RekomRequestsTable
 
                 EditAction::make(),
 
-                // --- Operator: TERIMA ---
+                // 🟢 Operator: TERIMA permohonan dari nelayan
                 Action::make('approve_operator')
                     ->label('Terima')
                     ->color('success')
@@ -52,12 +54,11 @@ class RekomRequestsTable
                     ->requiresConfirmation()
                     ->action(fn ($record) => $record->update(['status' => 'menunggu_kepala']))
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()
-                        ->hasRole('operator') &&
+                        Filament::auth()->user()->hasRole('operator') &&
                         in_array($record->status, ['pending','menunggu_admin'])
                     ),
 
-                // --- Operator: TOLAK ---
+                // 🔴 Operator: TOLAK permohonan dari nelayan
                 Action::make('reject_operator')
                     ->label('Tolak')
                     ->color('danger')
@@ -65,57 +66,25 @@ class RekomRequestsTable
                     ->requiresConfirmation()
                     ->action(fn ($record) => $record->update(['status' => 'ditolak_operator']))
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()
-                        ->hasRole('operator') &&
+                        Filament::auth()->user()->hasRole('operator') &&
                         in_array($record->status, ['pending','menunggu_admin'])
                     ),
 
-                // --- Kepala Dinas: TERIMA ---
+                // 🟡 Kepala Dinas: SETUJUI → kirim balik ke operator untuk dilengkapi
                 Action::make('approve_kepala')
-    ->label('Terima')
-    ->color('success')
-    ->icon('heroicon-o-check-circle')
-    ->requiresConfirmation()
-    ->action(function ($record) {
-        // 1️⃣ Update status permintaan
-        $record->update(['status' => 'disetujui']);
+                    ->label('Setujui')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->update(['status' => 'revisi_admin']);
+                    })
+                    ->visible(fn ($record) =>
+                        Filament::auth()->user()->hasRole('kadis') &&
+                        $record->status === 'menunggu_kepala'
+                    ),
 
-        // 2️⃣ Buat nomor surat otomatis
-        $nomorSurat = '302-KAB/'.$record->id.'/PERIKANAN/JBKP/'.now()->format('m/Y');
-
-        // 3️⃣ Generate PDF surat rekomendasi
-        $pdf = Pdf::loadView('pdf.surat_rekomendasi', [
-            'data' => $record,
-            'nomorSurat' => $nomorSurat,
-            'tanggalSurat' => Carbon::now()->format('d F Y'),
-        ]);
-
-        // 4️⃣ Simpan PDF ke storage
-        $path = 'surat_rekomendasi/surat_'.$record->id.'.pdf';
-        Storage::disk('public')->put($path, $pdf->output());
-
-        // 5️⃣ Simpan ke tabel surat_rekomendasi
-        SuratRekomendasi::create([
-            'rekom_request_id' => $record->id,
-            'nomor_surat' => $nomorSurat,
-            'file_path' => $path,
-            'tanggal_surat' => now(),
-        ]);
-    })
-    ->visible(fn ($record) =>
-        Filament::auth()->user()->hasRole('kadis') &&
-        $record->status === 'menunggu_kepala'
-    ),
-    Action::make('lihat_surat')
-    ->label('Lihat Surat')
-    ->icon('heroicon-o-eye')
-    ->url(fn ($record) => Storage::url(optional($record->suratRekomendasi)->file_path))
-    ->openUrlInNewTab()
-    ->visible(fn ($record) => $record->status === 'disetujui'),
-
-
-
-                // --- Kepala Dinas: TOLAK ---
+                // 🔴 Kepala Dinas: TOLAK
                 Action::make('reject_kepala')
                     ->label('Tolak')
                     ->color('danger')
@@ -123,10 +92,128 @@ class RekomRequestsTable
                     ->requiresConfirmation()
                     ->action(fn ($record) => $record->update(['status' => 'ditolak_kepala']))
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()
-                        ->hasRole('kadis') &&
+                        Filament::auth()->user()->hasRole('kadis') &&
                         $record->status === 'menunggu_kepala'
-                ),
+                    ),
+
+                // 🟠 Operator: LENGKAPI DATA KOSONG setelah disetujui kepala dinas
+                Action::make('lengkapi_data')
+                    ->label('Lengkapi Data Kosong')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('warning')
+                    ->visible(fn ($record) =>
+                        Filament::auth()->user()->hasRole('operator') &&
+                        $record->status === 'revisi_admin'
+                    )
+                 ->schema([
+                    TextInput::make('klasifikasi_gt')
+                            ->label('Klasifikasi GT Mesin')
+                            ->required(),
+
+                        TextInput::make('tempat_pengambilan')
+                            ->label('Tempat Pengambilan')
+                            ->required(),
+
+                        TextInput::make('no_penyalur')
+                            ->label('Nomor Penyalur')
+                            ->required(),
+
+                        TextInput::make('alamat_penyalur')
+                            ->label('Alamat Penyalur')
+                            ->required(),
+                    ])
+
+                    ->action(function (array $data, $record) {
+                        $record->update([
+                            ...$data,
+                            'status' => 'siap_publikasi',
+                        ]);
+                    }),
+
+                Action::make('publikasi')
+                    ->label('Publikasikan Surat')
+                    ->icon('heroicon-o-cloud-arrow-up')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        // 🟢 1. Buat nomor surat
+                        $nomorSurat = '302-KAB/'.$record->id.'/PERIKANAN/JBKP/'.now()->format('m/Y');
+
+                        // 🟢 2. Simpan dulu nomor surat ke DB (agar relasi terbentuk)
+                        $surat = SuratRekomendasi::updateOrCreate(
+                            ['rekom_request_id' => $record->id],
+                            [
+                                'nomor_surat' => $nomorSurat,
+                                'tanggal_surat' => now(),
+                            ]
+                        );
+
+                        // 🟢 3. Update status ke "dipublikasikan"
+                        $record->update(['status' => 'dipublikasikan']);
+
+                        // 🟢 4. Ambil ulang record dengan relasi surat
+                        $record->load('suratRekomendasi');
+
+                        // 🟢 5. Buat PDF dengan data terbaru (yang sudah punya nomor_surat)
+                        $pdf = Pdf::loadView('pdf.surat_rekomendasi', [
+                            'data' => $record,
+                            'nomorSurat' => $surat->nomor_surat,
+                            'tanggalSurat' => Carbon::now()->format('d F Y'),
+                        ]);
+
+                        // 🟢 6. Simpan PDF ke storage
+                        $path = 'surat_rekomendasi/surat_'.$record->id.'.pdf';
+                        Storage::disk('public')->put($path, $pdf->output());
+
+                        // 🟢 7. Update path file di database
+                        $surat->update(['file_path' => $path]);
+                        })
+                        ->visible(fn ($record) =>
+                            Filament::auth()->user()->hasRole('operator') &&
+                            $record->status === 'siap_publikasi'
+                        )
+
+                    ->label('Publikasikan Surat')
+                    ->icon('heroicon-o-cloud-arrow-up')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $nomorSurat = '302-KAB/'.$record->id.'/PERIKANAN/JBKP/'.now()->format('m/Y');
+
+                        $pdf = Pdf::loadView('pdf.surat_rekomendasi', [
+                            'data' => $record,
+                            'nomorSurat' => $nomorSurat,
+                            'tanggalSurat' => Carbon::now()->format('d F Y'),
+                        ]);
+
+                        $path = 'surat_rekomendasi/surat_'.$record->id.'.pdf';
+                        Storage::disk('public')->put($path, $pdf->output());
+
+                        SuratRekomendasi::updateOrCreate(
+                            ['rekom_request_id' => $record->id],
+                            [
+                                'nomor_surat' => $nomorSurat,
+                                'file_path' => $path,
+                                'tanggal_surat' => now(),
+                            ]
+                        );
+
+                        $record->update(['status' => 'dipublikasikan']);
+                    })
+                    ->visible(fn ($record) =>
+                        Filament::auth()->user()->hasRole('operator') &&
+                        $record->status === 'siap_publikasi'
+                    ),
+
+                // 👁 Kepala Dinas dan Operator: LIHAT SURAT hanya jika SUDAH DIPUBLIKASIKAN
+                Action::make('lihat_surat')
+                    ->label('Lihat Surat')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn ($record) => Storage::url(optional($record->suratRekomendasi)->file_path))
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) =>
+                        $record->status === 'dipublikasikan'
+                    ),
             ]);
     }
 }

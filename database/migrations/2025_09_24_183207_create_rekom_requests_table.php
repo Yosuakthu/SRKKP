@@ -43,7 +43,8 @@ return new class extends Migration
                 'tinjau_ulang',     // admin minta revisi
                 'menunggu_kepala',  // menunggu keputusan kepala
                 'disetujui',        // kepala setuju & rekom keluar
-                'revisi_admin',     // dikembalikan untuk revisi
+                'revisi_admin',
+                'siap_publikasi',     // dikembalikan untuk revisi
                 'ditolak'           // permohonan ditolak
             ])->default('pending');
 

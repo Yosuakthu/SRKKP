@@ -125,7 +125,7 @@
 
     <div class="title">
         <h3>SURAT REKOMENDASI</h3>
-        <p>Nomor: {{ $data->suratRekomendasi->nomor_surat ?? '302-KAB/2/PERIKANAN/BKJP/10/2025' }}</p>
+        <p>Nomor: {{ optional($data->suratRekomendasi)->nomor_surat ?? '-' }}</p>
     </div>
 
     <div class="content">
@@ -163,7 +163,7 @@
             $koefisien      = 0.303;
             $alokasi_bbm = $jumlah_mesin * $daya_mesin * $jam_penggunaan * $lama_operasi * $koefisien;
             $alokasi_bbm = number_format($alokasi_bbm, 0, ',', '.');
-            $tanggalMulai = Carbon::parse('2025-10-10');
+            $tanggalMulai = Carbon::now();
             $tanggalBerakhir = $tanggalMulai->copy()->addMonths(3);
         @endphp
 
@@ -191,7 +191,7 @@
                     <td>{{ $daya_mesin }}</td>
                     <td>{{ $jumlah_mesin }}</td>
                     <td>{{ $jam_penggunaan }}</td>
-                    <td>{{ $data->kapasitas_gt ?? '-' }}</td>
+                    <td>{{ $data->klasifikasi_gt ?? '-' }}</td>
                     <td>{{ $lama_operasi }}</td>
                     <td><strong>{{ $alokasi_bbm }}</strong></td>
                 </tr>

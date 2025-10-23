@@ -14,7 +14,8 @@ class RekomRequests extends Model
         'jenis_alat_mesin','fungsi_alat_mesin','jumlah_alat_mesin','daya_alat_mesin',
         'lama_penggunaan_jam_per_hari','lama_operasi','usulan_volume_konsumsi',
         'estimasi_sisa_jbkp','status','admin_id','admin_verified_at','admin_note',
-        'kepala_id','kepala_action_at','kepala_note','sertifikat_mesin_path','surat_rekom_path'
+        'kepala_id','kepala_action_at','kepala_note','sertifikat_mesin_path','surat_rekom_path',
+        'tempat_pengambilan','no_penyalur','alamat_penyalur','klasifikasi_gt',
     ];
 
     public function user()
@@ -24,7 +25,7 @@ class RekomRequests extends Model
 public function suratRekomendasi()
 {
     return $this->hasOne(SuratRekomendasi::class, 'rekom_request_id');
-    // ganti 'nama_foreign_key' sesuai kolom di database
+    
 }
 
 
