@@ -52,7 +52,29 @@ class RekomRequestsTable
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->action(fn ($record) => $record->update(['status' => 'menunggu_kepala']))
+                    ->schema([
+                        TextInput::make('klasifikasi_gt')
+                            ->label('Klasifikasi GT Mesin')
+                            ->required(),
+
+                        TextInput::make('tempat_pengambilan')
+                            ->label('Tempat Pengambilan')
+                            ->required(),
+
+                        TextInput::make('alamat_penyalur')
+                            ->label('Alamat Penyalur')
+                            ->required(),
+
+                        TextInput::make('no_penyalur')
+                            ->label('Nomor Penyalur')
+                            ->required(),
+                    ])
+                    ->action(function (array $data, $record) {
+                        $record->update([
+                            ...$data,
+                            'status' => 'menunggu_kepala',
+                        ]);
+                    })
                     ->visible(fn ($record) =>
                         Filament::auth()->user()->hasRole('operator') &&
                         in_array($record->status, ['pending','menunggu_admin'])
@@ -70,70 +92,11 @@ class RekomRequestsTable
                         in_array($record->status, ['pending','menunggu_admin'])
                     ),
 
-                // 🟡 Kepala Dinas: SETUJUI → kirim balik ke operator untuk dilengkapi
+                // 🟡 Kepala Dinas: SETUJUI → langsung publikasi surat
                 Action::make('approve_kepala')
                     ->label('Setujui')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        $record->update(['status' => 'revisi_admin']);
-                    })
-                    ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('kadis') &&
-                        $record->status === 'menunggu_kepala'
-                    ),
-
-                // 🔴 Kepala Dinas: TOLAK
-                Action::make('reject_kepala')
-                    ->label('Tolak')
-                    ->color('danger')
-                    ->icon('heroicon-o-x-circle')
-                    ->requiresConfirmation()
-                    ->action(fn ($record) => $record->update(['status' => 'ditolak_kepala']))
-                    ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('kadis') &&
-                        $record->status === 'menunggu_kepala'
-                    ),
-
-                // 🟠 Operator: LENGKAPI DATA KOSONG setelah disetujui kepala dinas
-                Action::make('lengkapi_data')
-                    ->label('Lengkapi Data Kosong')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('warning')
-                    ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('operator') &&
-                        $record->status === 'revisi_admin'
-                    )
-                 ->schema([
-                    TextInput::make('klasifikasi_gt')
-                            ->label('Klasifikasi GT Mesin')
-                            ->required(),
-
-                        TextInput::make('tempat_pengambilan')
-                            ->label('Tempat Pengambilan')
-                            ->required(),
-
-                        TextInput::make('no_penyalur')
-                            ->label('Nomor Penyalur')
-                            ->required(),
-
-                        TextInput::make('alamat_penyalur')
-                            ->label('Alamat Penyalur')
-                            ->required(),
-                    ])
-
-                    ->action(function (array $data, $record) {
-                        $record->update([
-                            ...$data,
-                            'status' => 'siap_publikasi',
-                        ]);
-                    }),
-
-                Action::make('publikasi')
-                    ->label('Publikasikan Surat')
-                    ->icon('heroicon-o-cloud-arrow-up')
-                    ->color('success')
                     ->requiresConfirmation()
                     ->action(function ($record) {
                         // 🟢 1. Buat nomor surat
@@ -167,43 +130,27 @@ class RekomRequestsTable
 
                         // 🟢 7. Update path file di database
                         $surat->update(['file_path' => $path]);
-                        })
-                        ->visible(fn ($record) =>
-                            Filament::auth()->user()->hasRole('operator') &&
-                            $record->status === 'siap_publikasi'
-                        )
-
-                    ->label('Publikasikan Surat')
-                    ->icon('heroicon-o-cloud-arrow-up')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        $nomorSurat = '302-KAB/'.$record->id.'/PERIKANAN/JBKP/'.now()->format('m/Y');
-
-                        $pdf = Pdf::loadView('pdf.surat_rekomendasi', [
-                            'data' => $record,
-                            'nomorSurat' => $nomorSurat,
-                            'tanggalSurat' => Carbon::now()->format('d F Y'),
-                        ]);
-
-                        $path = 'surat_rekomendasi/surat_'.$record->id.'.pdf';
-                        Storage::disk('public')->put($path, $pdf->output());
-
-                        SuratRekomendasi::updateOrCreate(
-                            ['rekom_request_id' => $record->id],
-                            [
-                                'nomor_surat' => $nomorSurat,
-                                'file_path' => $path,
-                                'tanggal_surat' => now(),
-                            ]
-                        );
-
-                        $record->update(['status' => 'dipublikasikan']);
                     })
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('operator') &&
-                        $record->status === 'siap_publikasi'
+                        Filament::auth()->user()->hasRole('kadis') &&
+                        $record->status === 'menunggu_kepala'
                     ),
+
+                // 🔴 Kepala Dinas: TOLAK
+                Action::make('reject_kepala')
+                    ->label('Tolak')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->requiresConfirmation()
+                    ->action(fn ($record) => $record->update(['status' => 'ditolak_kepala']))
+                    ->visible(fn ($record) =>
+                        Filament::auth()->user()->hasRole('kadis') &&
+                        $record->status === 'menunggu_kepala'
+                    ),
+
+
+
+
 
                 // 👁 Kepala Dinas dan Operator: LIHAT SURAT hanya jika SUDAH DIPUBLIKASIKAN
                 Action::make('lihat_surat')

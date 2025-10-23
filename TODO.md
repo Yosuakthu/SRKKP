@@ -1,0 +1,5 @@
+- [x] Ubah action 'approve_operator': Tambah schema form dengan 4 field (klasifikasi_gt, tempat_pengambilan, alamat_penyalur, no_penyalur), required. Di action, update record dengan data dan set status 'menunggu_kepala'.
+- [x] Ubah action 'approve_kepala': Ubah action ke langsung publikasi (buat surat, PDF, set status 'dipublikasikan').
+- [x] Hapus action 'lengkapi_data'.
+- [x] Hapus action 'publikasi' yang duplikat.
+- [x] Update visibility 'approve_kepala' untuk status 'menunggu_kepala'.
