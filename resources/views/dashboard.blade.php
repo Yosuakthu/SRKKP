@@ -129,7 +129,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">Ditolak</p>
-                                <p class="text-3xl font-bold text-gray-900 group-hover:text-red-600 transition-colors duration-300">{{ $permohonan->whereIn('status', ['ditolak_operator', 'ditolak_kepala'])->count() }}</p>
+                                <p class="text-3xl font-bold text-gray-900 group-hover:text-red-600 transition-colors duration-300">{{ $permohonan->whereIn('status', ['ditolak'])->count() }}</p>
                             </div>
                             <div class="bg-gradient-to-br from-red-500 to-rose-500 p-3 rounded-xl shadow-lg">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +227,7 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600">Ditolak</span>
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    {{ $permohonan->whereIn('status', ['ditolak_operator', 'ditolak_kepala'])->count() }}
+                                    {{ $permohonan->whereIn('status', ['ditolak'])->count() }}
                                 </span>
                             </div>
                         </div>
