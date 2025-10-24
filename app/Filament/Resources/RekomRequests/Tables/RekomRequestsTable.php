@@ -76,7 +76,7 @@ class RekomRequestsTable
                         ]);
                     })
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('operator') &&
+                        Filament::auth()->user()->hasRole('admin') &&
                         in_array($record->status, ['pending','menunggu_operator'])
                     ),
 
@@ -86,9 +86,9 @@ class RekomRequestsTable
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()
-                    ->action(fn ($record) => $record->update(['status' => 'ditolak_operator']))
+                    ->action(fn ($record) => $record->update(['status' => 'ditolak']))
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('operator') &&
+                        Filament::auth()->user()->hasRole('admin') &&
                         in_array($record->status, ['pending','menunggu_operator'])
                     ),
 
@@ -132,7 +132,7 @@ class RekomRequestsTable
                         $surat->update(['file_path' => $path]);
                     })
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('kadis') &&
+                        Filament::auth()->user()->hasRole('Kepala Dinas') &&
                         $record->status === 'menunggu_kepala'
                     ),
 
@@ -144,7 +144,7 @@ class RekomRequestsTable
                     ->requiresConfirmation()
                     ->action(fn ($record) => $record->update(['status' => 'ditolak_kepala']))
                     ->visible(fn ($record) =>
-                        Filament::auth()->user()->hasRole('kadis') &&
+                        Filament::auth()->user()->hasRole('Kepala Dinas') &&
                         $record->status === 'menunggu_kepala'
                     ),
 
