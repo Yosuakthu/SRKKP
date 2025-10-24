@@ -77,7 +77,7 @@ class RekomRequestsTable
                     })
                     ->visible(fn ($record) =>
                         Filament::auth()->user()->hasRole('operator') &&
-                        in_array($record->status, ['pending','menunggu_admin'])
+                        in_array($record->status, ['pending','menunggu_operator'])
                     ),
 
                 // 🔴 Operator: TOLAK permohonan dari nelayan
@@ -89,7 +89,7 @@ class RekomRequestsTable
                     ->action(fn ($record) => $record->update(['status' => 'ditolak_operator']))
                     ->visible(fn ($record) =>
                         Filament::auth()->user()->hasRole('operator') &&
-                        in_array($record->status, ['pending','menunggu_admin'])
+                        in_array($record->status, ['pending','menunggu_operator'])
                     ),
 
                 // 🟡 Kepala Dinas: SETUJUI → langsung publikasi surat

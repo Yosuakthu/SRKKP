@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rekom_requests', function (Blueprint $table) {
-            if (!Schema::hasColumn('rekom_requests', 'user_id')) {
-                $table->unsignedBigInteger('user_id')->after('id');
-                $table->foreign('user_id')->references('id')->on('users');
+            if (!Schema::hasColumn('rekom_requests', 'fungsi_alat_mesin')) {
+                $table->string('fungsi_alat_mesin')->nullable()->after('jenis_alat_mesin');
             }
         });
     }
@@ -25,8 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rekom_requests', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
+            $table->dropColumn('fungsi_alat_mesin');
         });
     }
 };

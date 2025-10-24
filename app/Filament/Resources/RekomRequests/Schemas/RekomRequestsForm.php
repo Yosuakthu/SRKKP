@@ -41,7 +41,7 @@ class RekomRequestsForm
                 Select::make('status')
                     ->options([
             'pending' => 'Pending',
-            'menunggu_admin' => 'Menunggu admin',
+            'menunggu_operator' => 'Menunggu Operator',
             'tinjau_ulang' => 'Tinjau ulang',
             'menunggu_kepala' => 'Menunggu kepala',
             'disetujui' => 'Disetujui',

@@ -11,7 +11,7 @@ class PermohonanController extends Controller
 {
     public function create()
     {
-        return view('permohonan.create');
+        return view('permohonan.create-modern');
     }
 
     public function store(Request $request)
@@ -35,8 +35,8 @@ class PermohonanController extends Controller
         ]);
 
         $data = $request->all();
-        $data['user_id'] = Auth::id();
-        $data['status'] = 'draft';
+        $data['user_id'] = Auth::guard('nelayan')->id();
+        $data['status'] = 'pending';
 
         // Handle file upload
         if ($request->hasFile('sertifikat_mesin_path')) {
@@ -53,16 +53,16 @@ class PermohonanController extends Controller
 
     public function show($id)
     {
-        $permohonan = RekomRequests::where('user_id', Auth::id())->findOrFail($id);
+        $permohonan = RekomRequests::where('user_id', Auth::guard('nelayan')->id())->findOrFail($id);
         return view('permohonan.show', compact('permohonan'));
     }
 
     public function edit($id)
     {
-        $permohonan = RekomRequests::where('user_id', Auth::id())->findOrFail($id);
+        $permohonan = RekomRequests::where('user_id', Auth::guard('nelayan')->id())->findOrFail($id);
 
-        // Only allow editing if status is draft
-        if ($permohonan->status !== 'draft') {
+        // Only allow editing if status is pending
+        if ($permohonan->status !== 'pending') {
             return redirect()->route('dashboard')->with('error', 'Permohonan yang sudah diajukan tidak dapat diedit.');
         }
 
@@ -71,9 +71,9 @@ class PermohonanController extends Controller
 
     public function update(Request $request, $id)
     {
-        $permohonan = RekomRequests::where('user_id', Auth::id())->findOrFail($id);
+        $permohonan = RekomRequests::where('user_id', Auth::guard('nelayan')->id())->findOrFail($id);
 
-        if ($permohonan->status !== 'draft') {
+        if ($permohonan->status !== 'pending') {
             return redirect()->route('dashboard')->with('error', 'Permohonan yang sudah diajukan tidak dapat diupdate.');
         }
 
@@ -117,9 +117,9 @@ class PermohonanController extends Controller
 
     public function submit($id)
     {
-        $permohonan = RekomRequests::where('user_id', Auth::id())->findOrFail($id);
+        $permohonan = RekomRequests::where('user_id', Auth::guard('nelayan')->id())->findOrFail($id);
 
-        if ($permohonan->status !== 'draft') {
+        if ($permohonan->status !== 'pending') {
             return redirect()->route('dashboard')->with('error', 'Permohonan sudah diajukan.');
         }
 

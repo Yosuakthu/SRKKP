@@ -16,7 +16,7 @@ return new class extends Migration
             ALTER TABLE rekom_requests
             MODIFY COLUMN status ENUM(
                 'pending',
-                'menunggu_admin',
+                'menunggu_operator',
                 'tinjau_ulang',
                 'menunggu_kepala',
                 'disetujui',
@@ -41,7 +41,7 @@ return new class extends Migration
                 'revisi_admin',
                 'siap_publikasi',
                 'dipublikasikan',
-                'ditolak''
+                'ditolak'
             ) NOT NULL DEFAULT 'pending'
         ");
     }

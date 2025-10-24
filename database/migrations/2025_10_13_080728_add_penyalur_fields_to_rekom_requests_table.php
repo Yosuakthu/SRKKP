@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rekom_requests', function (Blueprint $table) {
-            $table->string('tempat_pengambilan')->nullable();
-            $table->string('no_penyalur')->nullable();
-            $table->string('alamat_penyalur')->nullable();
-            $table->string('klasifikasi_gt')->nullable(); // ✅ kolom baru ditambahkan di sini
+            if (!Schema::hasColumn('rekom_requests', 'tempat_pengambilan')) {
+                $table->string('tempat_pengambilan')->nullable();
+            }
+            if (!Schema::hasColumn('rekom_requests', 'no_penyalur')) {
+                $table->string('no_penyalur')->nullable();
+            }
+            if (!Schema::hasColumn('rekom_requests', 'alamat_penyalur')) {
+                $table->string('alamat_penyalur')->nullable();
+            }
+            if (!Schema::hasColumn('rekom_requests', 'klasifikasi_gt')) {
+                $table->string('klasifikasi_gt')->nullable(); // ✅ kolom baru ditambahkan di sini
+            }
         });
     }
 

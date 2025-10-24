@@ -5,13 +5,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermohonanController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::get('/', [DashboardController::class, 'index'])->middleware(['auth:nelayan', 'verified'])->name('dashboard');
+
+Route::middleware('auth:nelayan')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -24,5 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/permohonan/{id}', [PermohonanController::class, 'update'])->name('permohonan.update');
     Route::post('/permohonan/{id}/submit', [PermohonanController::class, 'submit'])->name('permohonan.submit');
 });
+
+Route::get('/login-admin', function () {
+    return view('auth.login-admin');
+})->name('login-admin');
 
 require __DIR__.'/auth.php';

@@ -11,8 +11,8 @@ class RekomRequestObserver
      */
     public function created(RekomRequests $rekomRequests): void
     {
-            // Setelah permohonan dibuat, langsung dikirim ke admin
-            $rekomRequests->status = 'menunggu_admin';
+            // Setelah permohonan dibuat, langsung dikirim ke operator
+            $rekomRequests->status = 'menunggu_operator';
             $rekomRequests->save();
     }
 

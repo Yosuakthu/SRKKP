@@ -1,4 +1,4 @@
-<x-app-layout-modern>
+<x-app-layout>
     <div class="min-h-screen bg-gray-50 py-8">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
@@ -360,14 +360,43 @@
                                 Sertifikat Mesin <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input id="sertifikat_mesin_path" name="sertifikat_mesin_path" type="file" accept=".pdf,.jpg,.jpeg,.png" required
-                                       class="appearance-none relative block w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 hover:border-orange-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 transition-all duration-200 hover:border-orange-400 hover:bg-orange-50/50">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600 justify-center mb-2">
+                                            <label for="sertifikat_mesin_path" class="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500">
+                                                <span>Upload file</span>
+                                                <input id="sertifikat_mesin_path" name="sertifikat_mesin_path" type="file" accept=".pdf,.jpg,.jpeg,.png" required class="sr-only">
+                                            </label>
+                                            <p class="pl-1">atau drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            PDF, JPG, JPEG, PNG hingga 2MB
+                                        </p>
+                                        <div class="mt-4 flex justify-center space-x-4">
+                                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                                <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <span>PDF</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                                <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <span>Images</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mt-2 flex items-center space-x-2 text-sm text-gray-600">
                                 <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span>Format: PDF, JPG, JPEG, PNG. Maksimal 2MB</span>
+                                <span>File ini wajib untuk kelengkapan berkas permohonan</span>
                             </div>
                             <x-input-error class="mt-2" :messages="$errors->get('sertifikat_mesin_path')" />
                         </div>
@@ -385,4 +414,13 @@
                     </a>
                     <button type="submit"
                             class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        {{ __('Ajukan Permohonan') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-app-layout>

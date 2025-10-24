@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::guard('nelayan')->user();
 
         // Ambil permohonan berdasarkan user yang login
         $permohonan = RekomRequests::where('user_id', $user->id)->latest()->get();

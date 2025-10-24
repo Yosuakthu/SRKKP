@@ -40,6 +40,27 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'nelayan' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Guards
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the session storage that should be used for
+    | authentication. A sensible default has been set for you but you
+    | may change this to any other session driver.
+    |
+    */
+
+    'session' => [
+        'web' => 'web',
+        'nelayan' => 'nelayan',
     ],
 
     /*
